@@ -9,7 +9,8 @@
 - Shop filters: All, Abayas, Hijabs. Product cards open details; only details can add to cart.
 - Cart opens below its header icon. Disable opening when empty; badge shows total quantity.
 - Cart rows show image, name, options, price, quantity controls and remove action, followed by total and Go to checkout.
-- Preserve guest carts locally through refresh and OAuth; merge into Supabase after sign-in.
+- Adding to cart requires Google sign-in. Return signed-out users to the product details page after OAuth so they can finish adding their item.
+- Store all cart items in Supabase; no guest cart. Cart contents persist across refreshes and devices for the same account.
 - Persist products, customer data, signed-in carts, orders and order items in Supabase.
 - Signed-out checkout starts Google sign-in and returns to checkout after success.
 - Checkout requires customer/delivery details and shows the order summary. Simulate payment without collecting card details.

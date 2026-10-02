@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Footer, Header, StoreProvider } from "@/components/store-ui";
 
 export const metadata: Metadata = {
   title: "Fihan Store",
@@ -8,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" data-scroll-behavior="smooth">
+      <body><StoreProvider><Header />{children}<Footer /></StoreProvider></body>
     </html>
   );
 }
