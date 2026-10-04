@@ -1,6 +1,8 @@
 import type { User, SupabaseClient, PostgrestError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { getSupabaseConfig } from "@/lib/supabase/config";
+import { createClient as createTokenClient } from "@supabase/supabase-js";
 
 export class HttpError extends Error {
   constructor(public status: number, message: string) {
@@ -18,10 +20,19 @@ export async function api(request: Request, work: (context: Context) => Promise<
       if (origin && origin !== new URL(request.url).origin) throw new HttpError(403, "Request origin is not allowed");
       if (!request.headers.get("content-type")?.includes("application/json")) throw new HttpError(415, "JSON request required");
     }
-    const supabase = await createClient();
+    const authorization = request.headers.get("authorization");
+    const token = authorization?.match(/^Bearer ([^\s]+)$/i)?.[1];
+    if (authorization !== null && !token) throw new HttpError(401, "Invalid authorization header");
+    const { url, key } = getSupabaseConfig();
+    const supabase = token
+      ? createTokenClient(url, key, {
+          global: { headers: { Authorization: `Bearer ${token}` } },
+          auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+        })
+      : await createClient();
     let user: User | null = null;
-    if (authenticated) {
-      const result = await supabase.auth.getUser();
+    if (authenticated || token) {
+      const result = await supabase.auth.getUser(token);
       user = result.data.user;
       if (result.error || !user) throw new HttpError(401, "Sign in with Google to continue");
     }
